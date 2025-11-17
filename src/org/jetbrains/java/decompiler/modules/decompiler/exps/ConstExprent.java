@@ -1,7 +1,6 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.modules.decompiler.exps;
 
-import org.jetbrains.java.decompiler.code.CodeConstants;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
@@ -133,6 +132,7 @@ public class ConstExprent extends Exprent {
   private final Object value;
   private final boolean boolPermitted;
   private boolean wasCondy = false;
+  private Exprent qualifier;
 
   public ConstExprent(int val, boolean boolPermitted, BitSet bytecodeOffsets) {
     this(guessType(val, boolPermitted), val, boolPermitted, bytecodeOffsets);
@@ -191,7 +191,7 @@ public class ConstExprent extends Exprent {
 
   @Override
   public Exprent copy() {
-    return new ConstExprent(constType, value, bytecode, wasCondy);
+    return new ConstExprent(constType, value, bytecode, wasCondy).setQualifier(qualifier);
   }
 
   @Override
@@ -201,11 +201,18 @@ public class ConstExprent extends Exprent {
 
   @Override
   public int getExprentUse() {
-    return Exprent.MULTIPLE_USES | Exprent.SIDE_EFFECTS_FREE;
+    int ret = Exprent.MULTIPLE_USES | Exprent.SIDE_EFFECTS_FREE;
+    if (qualifier != null) {
+      ret &= qualifier.getExprentUse();
+    }
+    return ret;
   }
 
   @Override
   public List<Exprent> getAllExprents(List<Exprent> list) {
+    if (qualifier != null) {
+      list.add(qualifier);
+    }
     return list;
   }
 
@@ -219,6 +226,10 @@ public class ConstExprent extends Exprent {
 
     if (wasCondy) {
       buf.append("/* $VF: constant dynamic */ ");
+    }
+
+    if (DecompilerContext.getOption(IFernflowerPreferences.SHOW_CONSTANT_QUALIFIERS) && qualifier != null) {
+      buf.append("/* ").append(qualifier.toJava(0)).append(". */ ");
     }
 
     if (constType.type != CodeType.NULL && value == null) {
@@ -646,6 +657,15 @@ public class ConstExprent extends Exprent {
 
   public ConstExprent setWasCondy(boolean wasCondy) {
     this.wasCondy = wasCondy;
+    return this;
+  }
+
+  public Exprent getQualifier() {
+    return qualifier;
+  }
+
+  public ConstExprent setQualifier(Exprent qualifier) {
+    this.qualifier = qualifier;
     return this;
   }
 

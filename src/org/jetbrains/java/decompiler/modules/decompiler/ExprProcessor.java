@@ -203,6 +203,8 @@ public class ExprProcessor implements CodeConstants {
 
     BasicBlock block = stat.getBlock();
 
+    Exprent constantQualifier = null;
+
     ListStack<Exprent> stack = data.getStack();
     List<Exprent> exprlist = data.getLstExprents();
 
@@ -218,33 +220,35 @@ public class ExprProcessor implements CodeConstants {
         bytecode_offsets.set(bytecode_offset, bytecode_offset + instr.length);
       }
 
+      Exprent nextConstantQualifier = null;
+
       switch (instr.opcode) {
         case opc_aconst_null:
-          pushEx(stack, exprlist, new ConstExprent(VarType.VARTYPE_NULL, null, bytecode_offsets));
+          pushEx(stack, exprlist, new ConstExprent(VarType.VARTYPE_NULL, null, bytecode_offsets).setQualifier(constantQualifier));
           break;
         case opc_bipush:
         case opc_sipush:
-          pushEx(stack, exprlist, new ConstExprent(instr.operand(0), true, bytecode_offsets));
+          pushEx(stack, exprlist, new ConstExprent(instr.operand(0), true, bytecode_offsets).setQualifier(constantQualifier));
           break;
         case opc_lconst_0:
         case opc_lconst_1:
-          pushEx(stack, exprlist, new ConstExprent(VarType.VARTYPE_LONG, (long)(instr.opcode - opc_lconst_0), bytecode_offsets));
+          pushEx(stack, exprlist, new ConstExprent(VarType.VARTYPE_LONG, (long)(instr.opcode - opc_lconst_0), bytecode_offsets).setQualifier(constantQualifier));
           break;
         case opc_fconst_0:
         case opc_fconst_1:
         case opc_fconst_2:
-          pushEx(stack, exprlist, new ConstExprent(VarType.VARTYPE_FLOAT, (float)(instr.opcode - opc_fconst_0), bytecode_offsets));
+          pushEx(stack, exprlist, new ConstExprent(VarType.VARTYPE_FLOAT, (float)(instr.opcode - opc_fconst_0), bytecode_offsets).setQualifier(constantQualifier));
           break;
         case opc_dconst_0:
         case opc_dconst_1:
-          pushEx(stack, exprlist, new ConstExprent(VarType.VARTYPE_DOUBLE, (double)(instr.opcode - opc_dconst_0), bytecode_offsets));
+          pushEx(stack, exprlist, new ConstExprent(VarType.VARTYPE_DOUBLE, (double)(instr.opcode - opc_dconst_0), bytecode_offsets).setQualifier(constantQualifier));
           break;
         case opc_ldc:
         case opc_ldc_w:
         case opc_ldc2_w:
           PooledConstant cn = pool.getConstant(instr.operand(0));
           if (cn instanceof PrimitiveConstant) {
-            pushEx(stack, exprlist, new ConstExprent(consts[cn.type - CONSTANT_Integer], ((PrimitiveConstant)cn).value, bytecode_offsets));
+            pushEx(stack, exprlist, new ConstExprent(consts[cn.type - CONSTANT_Integer], ((PrimitiveConstant)cn).value, bytecode_offsets).setQualifier(constantQualifier));
           }
           else if (cn instanceof LinkConstant && cn.type == CodeConstants.CONSTANT_Dynamic) {
             LinkConstant invoke_constant = (LinkConstant) cn;
@@ -589,6 +593,7 @@ public class ExprProcessor implements CodeConstants {
                   int nextOpc = seq.getInstr(i + 1).opcode;
                   if (nextOpc >= opc_aconst_null && nextOpc <= opc_ldc2_w) {
                     invocation.setSyntheticNullCheck();
+                    nextConstantQualifier = invocation.isStatic() ? invocation.getLstParameters().get(0) : invocation.getInstance();
                   }
                 }
               }
@@ -605,6 +610,8 @@ public class ExprProcessor implements CodeConstants {
           stack.pop();
           break;
       }
+
+      constantQualifier = nextConstantQualifier;
     }
   }
 

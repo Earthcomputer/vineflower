@@ -21,7 +21,8 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "0",
       IFernflowerPreferences.TERNARY_CONDITIONS, "1",
       IFernflowerPreferences.FORCE_JSR_INLINE, "1",
-      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1"
+      IFernflowerPreferences.VERIFY_PRE_POST_VARIABLE_MERGES, "1",
+      IFernflowerPreferences.SHOW_CONSTANT_QUALIFIERS, "1"
     );
     registerSet("Entire Classpath", this::registerEntireClassPath,
       IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
@@ -232,6 +233,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestEmptyBlocks");
     register(JAVA_8, "TestInvertedFloatComparison");
     register(JAVA_8, "TestPrivateEmptyConstructor");
+    register(JAVA_8, "TestQualifiedConstant");
     register(JAVA_8, "TestQualifiedNew");
     register(KOTLIN, "TestSynchronizedUnprotected");
     register(JAVA_8, "TestInterfaceSuper");

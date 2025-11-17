@@ -408,6 +408,11 @@ public interface IFernflowerPreferences {
   @Type(DecompilerOption.Type.BOOLEAN)
   String PRETTIFY_IFS = "prettify-ifs";
 
+  @Name("Show Constant Qualifiers")
+  @Description("Show qualifiers for non-static inlined constants")
+  @Type(DecompilerOption.Type.BOOLEAN)
+  String SHOW_CONSTANT_QUALIFIERS = "show-constant-qualifiers";
+
   Map<String, Object> DEFAULTS = getDefaults();
 
   static Map<String, Object> getDefaults() {
@@ -483,6 +488,7 @@ public interface IFernflowerPreferences {
     defaults.put(EXCLUDED_CLASSES, "");
     defaults.put(VALIDATE_INNER_CLASSES_NAMES, "1");
     defaults.put(PRETTIFY_IFS, "1");
+    defaults.put(SHOW_CONSTANT_QUALIFIERS, "0");
 
     return Collections.unmodifiableMap(defaults);
   }
