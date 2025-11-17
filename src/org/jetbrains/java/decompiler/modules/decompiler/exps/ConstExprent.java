@@ -191,7 +191,7 @@ public class ConstExprent extends Exprent {
 
   @Override
   public Exprent copy() {
-    return new ConstExprent(constType, value, bytecode, wasCondy).setQualifier(qualifier);
+    return new ConstExprent(constType, value, bytecode, wasCondy).setQualifier(qualifier == null ? null : qualifier.copy());
   }
 
   @Override
