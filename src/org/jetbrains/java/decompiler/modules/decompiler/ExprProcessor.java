@@ -593,7 +593,7 @@ public class ExprProcessor implements CodeConstants {
                   int nextOpc = seq.getInstr(i + 1).opcode;
                   if (nextOpc >= opc_aconst_null && nextOpc <= opc_ldc2_w) {
                     invocation.setSyntheticNullCheck();
-                    nextConstantQualifier = invocation.isStatic() ? invocation.getLstParameters().get(0) : invocation.getInstance();
+                    nextConstantQualifier = invocation.isStatic() ? invocation.getLstParameters().get(0).copy() : invocation.getInstance().copy();
                   }
                 }
               }
